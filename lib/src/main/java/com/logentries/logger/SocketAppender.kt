@@ -45,7 +45,13 @@ class SocketAppender(
     @Throws(IOException::class, InstantiationException::class)
     private fun openConnection() {
         if (leClient == null)
-            leClient = LogentriesClient(useHttpPost, useSsl, isUsingDataHub, dataHubAddr, dataHubPort, token)
+            leClient = LogentriesClient(
+                useHttpPost,
+                useSsl,
+                isUsingDataHub,
+                dataHubAddr,
+                dataHubPort,
+                token)
         leClient!!.connect()
     }
     
@@ -191,7 +197,7 @@ class SocketAppender(
                             // server at all...
                             try {
                                 // ... and put the current message to the local storage.
-                                localStorage.putLogToStorage(message)
+                                if (message != null) localStorage.putLogToStorage(message)
                                 message = null
                             } catch (ex: IOException) {
                                 Log.e(TAG, "Cannot save the log message to the local storage! Error: " + ex.message)

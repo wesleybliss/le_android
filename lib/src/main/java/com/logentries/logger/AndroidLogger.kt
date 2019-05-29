@@ -7,6 +7,8 @@ import java.io.IOException
 import java.util.UUID
 
 import android.content.Context.MODE_PRIVATE
+import com.logentries.storage.LEDataSource
+import com.logentries.storage.LEFileDataSource
 
 class AndroidLogger @Throws(IOException::class)
 private constructor(
@@ -17,7 +19,8 @@ private constructor(
     dataHubAddr: String? = null,
     dataHubPort: Int,
     token: String,
-    logHostName: Boolean) {
+    logHostName: Boolean,
+    dataSource: LEDataSource) {
     
     companion object {
     
@@ -37,17 +40,28 @@ private constructor(
             dataHubAddr: String? = null,
             dataHubPort: Int,
             token: String,
-            logHostName: Boolean) : AndroidLogger {
+            logHostName: Boolean,
+            dataSource: LEDataSource? = null) : AndroidLogger {
             
             instance?.loggingWorker?.close()
             
-            instance = AndroidLogger(context, useHttpPost, useSsl, isUsingDataHub, dataHubAddr, dataHubPort, token, logHostName)
+            instance = AndroidLogger(
+                context,
+                useHttpPost,
+                useSsl,
+                isUsingDataHub,
+                dataHubAddr,
+                dataHubPort,
+                token,
+                logHostName,
+                dataSource ?: LEFileDataSource(context))
             
             return instance!!
             
         }
-        
+    
         @Synchronized
+        @Suppress("unused")
         fun getInstance() : AndroidLogger = instance
             ?: throw IllegalArgumentException("Logger instance is not initialized. Call createInstance() first!")        
         
@@ -55,6 +69,7 @@ private constructor(
     
     private val loggingWorker: AsyncLoggingWorker
     
+    @Suppress("unused")
     var sendRawLogMessage: Boolean
         /**
          * Returns whether the logger is configured to send raw log messages or not.
@@ -84,14 +99,14 @@ private constructor(
         }
         
         loggingWorker = AsyncLoggingWorker(
-            context,
             useSsl,
             useHttpPost,
             isUsingDataHub,
             token,
             dataHubAddr,
             dataHubPort,
-            logHostName
+            logHostName,
+            dataSource
         )
         
     }

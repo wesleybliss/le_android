@@ -2,28 +2,50 @@ package com.logentries.logger
 
 import android.content.Context
 import android.util.Log
-
-import com.logentries.misc.FormattingUtils
 import com.logentries.misc.IDUtils
 import com.logentries.misc.Utils
-import com.logentries.net.LogentriesClient
-
+import com.logentries.storage.LEDataSource
 import java.io.IOException
-import java.util.ArrayDeque
-import java.util.Queue
 import java.util.concurrent.ArrayBlockingQueue
-import java.util.concurrent.TimeUnit
 
 class AsyncLoggingWorker @Throws(IOException::class)
 constructor(
-    context: Context,
     useSsl: Boolean,
     useHttpPost: Boolean,
     useDataHub: Boolean,
     logToken: String,
     dataHubAddress: String?,
     dataHubPort: Int,
-    logHostName: Boolean) {
+    logHostName: Boolean,
+    dataSource: LEDataSource) {
+    
+    companion object {
+        
+        private const val TAG = "LogentriesAndroidLogger"
+        
+        /**
+         * Size of the internal event queue.
+         */
+        private const val QUEUE_SIZE = 32768
+        /**
+         * Limit on individual log length ie. 2^16
+         */
+        private const val LOG_LENGTH_LIMIT = 65536
+        
+        /**
+         * Error message displayed when invalid API key is detected.
+         */
+        private const val INVALID_TOKEN = "Given Token does not look right!"
+        
+        /**
+         * Error message displayed when queue overflow occurs
+         */
+        private const val QUEUE_OVERFLOW = "Logentries Buffer Queue Overflow. Message Dropped!"
+        
+        private fun checkTokenFormat(token: String) : Boolean =
+            IDUtils.checkValidUUID(token)
+        
+    }
     
     /**
      * Indicator if the socket appender has been started.
@@ -38,7 +60,19 @@ constructor(
     /**
      * Asynchronous socket appender.
      */
-    private val appender: SocketAppender
+    private val appender: SocketAppender by lazy {
+        SocketAppender(
+            localStorage,
+            queue,
+            useHttpPost,
+            useSsl,
+            useDataHub,
+            dataHubAddress,
+            dataHubPort,
+            logToken,
+            logHostName,
+            sendRawLogMessage)
+    }
     
     /**
      * Message queue.
@@ -48,38 +82,33 @@ constructor(
     /**
      * Logs queue storage
      */
-    private val localStorage: LogStorage
+    private val localStorage: LogStorage by lazy { LogStorage(dataSource) }
     
     init {
         
-        if (!checkTokenFormat(logToken)) {
+        if (!checkTokenFormat(logToken))
             throw IllegalArgumentException(INVALID_TOKEN)
-        }
         
         queue = ArrayBlockingQueue(QUEUE_SIZE)
-        localStorage = LogStorage(context)
-        appender = SocketAppender(localStorage, queue, useHttpPost, useSsl, useDataHub, dataHubAddress, dataHubPort, logToken, logHostName, sendRawLogMessage)
         appender.start()
         started = true
+        
     }
     
     fun addLineToQueue(line: String) {
         
         // Check that we have all parameters set and socket appender running.
-        if (!this.started) {
-            
+        if (!started) {
             appender.start()
             started = true
         }
         
-        if (line.length > LOG_LENGTH_LIMIT) {
-            for (logChunk in Utils.splitStringToChunks(line, LOG_LENGTH_LIMIT)) {
-                tryOfferToQueue(logChunk)
-            }
-            
-        } else {
+        if (line.length > LOG_LENGTH_LIMIT)
+            Utils.splitStringToChunks(line, LOG_LENGTH_LIMIT)
+                .forEach { tryOfferToQueue(it) }
+        else
             tryOfferToQueue(line)
-        }
+        
     }
     
     /**
@@ -92,29 +121,32 @@ constructor(
      */
     @JvmOverloads
     fun close(queueFlushTimeout: Long = 0) {
-        if (queueFlushTimeout < 0) {
+        
+        if (queueFlushTimeout < 0)
             throw IllegalArgumentException("queueFlushTimeout must be greater or equal to zero")
-        }
         
         val now = System.currentTimeMillis()
         
         while (!queue.isEmpty()) {
-            if (queueFlushTimeout != 0L) {
-                if (System.currentTimeMillis() - now >= queueFlushTimeout) {
-                    // The timeout expired - need to stop the appender.
-                    break
-                }
-            }
+            if (queueFlushTimeout != 0L &&
+                System.currentTimeMillis() - now >= queueFlushTimeout)
+                // The timeout expired - need to stop the appender.
+                break
         }
+        
         appender.interrupt()
         started = false
+        
     }
     
     @Throws(RuntimeException::class)
     private fun tryOfferToQueue(line: String) {
+        
         if (!queue.offer(line)) {
+            
             Log.e(TAG, "The queue is full - will try to drop the oldest message in it.")
             queue.poll()
+            
             /*
             FIXME: This code migrated from LE Java Library; currently, there is no a simple
             way to backup the queue in case of overflow due to requirements to max.
@@ -127,46 +159,11 @@ constructor(
             rareness of the case with queue overflow.
              */
             
-            if (!queue.offer(line)) {
+            if (!queue.offer(line))
                 throw RuntimeException(QUEUE_OVERFLOW)
-            }
-        }
-    }
-    
-    companion object {
-        
-        /*
-     * Constants
-	 */
-        
-        private val TAG = "LogentriesAndroidLogger"
-        
-        
-        /**
-         * Size of the internal event queue.
-         */
-        private val QUEUE_SIZE = 32768
-        /**
-         * Limit on individual log length ie. 2^16
-         */
-        private val LOG_LENGTH_LIMIT = 65536
-        
-        
-        /**
-         * Error message displayed when invalid API key is detected.
-         */
-        private val INVALID_TOKEN = "Given Token does not look right!"
-        
-        /**
-         * Error message displayed when queue overflow occurs
-         */
-        private val QUEUE_OVERFLOW = "Logentries Buffer Queue Overflow. Message Dropped!"
-        
-        private fun checkTokenFormat(token: String): Boolean {
             
-            return IDUtils.checkValidUUID(token)
         }
+        
     }
-    
     
 }
