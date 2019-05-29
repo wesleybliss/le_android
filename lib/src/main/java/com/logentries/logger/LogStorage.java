@@ -46,7 +46,9 @@ public class LogStorage {
                 Log.d(TAG, "Log storage will be cleared because threshold of " + MAX_QUEUE_FILE_SIZE + " bytes has been reached");
                 reCreateStorageFile();
             }
-
+            
+            Log.e("LOGENTRIES", "writing data to log " + message);
+            
             writer = context.openFileOutput(STORAGE_FILE_NAME, Context.MODE_APPEND);
             writer.write(rawMessage);
 

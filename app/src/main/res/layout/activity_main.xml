@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+        
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="10dp"
+            android:layout_gravity="center_horizontal"
+            style="@style/TextAppearance.AppCompat.Large"
+            android:text="Logentries SDK Demo"
+            tools:ignore="HardcodedText" />
+        
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="100dp"
+            android:layout_gravity="center_horizontal"
+            android:text="Tap any button to trigger a log."
+            tools:ignore="HardcodedText" />
+        
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/buttonDebug"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp"
+            android:text="DEBUG"
+            android:backgroundTint="@android:color/holo_green_dark"
+            tools:ignore="HardcodedText" />
+        
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/buttonWarn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp"
+            android:text="WARN"
+            android:backgroundTint="@android:color/holo_orange_dark"
+            tools:ignore="HardcodedText" />
+        
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/buttonError"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp"
+            android:text="Error"
+            android:backgroundTint="@android:color/holo_red_dark"
+            tools:ignore="HardcodedText" />
+        
+    </LinearLayout>
+        
+</ScrollView>

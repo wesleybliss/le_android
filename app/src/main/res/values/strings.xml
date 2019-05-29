@@ -1,0 +1,9 @@
+<resources>
+    
+    <string name="app_name">App</string>
+    
+    <string name="button_debug_label">DEBUG (%1$d)</string>
+    <string name="button_warn_label">WARN (%1$d)</string>
+    <string name="button_error_label">ERROR (%1$d)</string>
+    
+</resources>
