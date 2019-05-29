@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-//apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.github.dcendents.android-maven'
 
 android {
 
@@ -61,7 +61,7 @@ dependencies {
     
 }
 
-/*install {
+install {
     repositories.mavenInstaller {
         pom.groupId = 'com.logentries'
         pom.version = '1.0.0'
@@ -91,4 +91,4 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 artifacts {
     archives sourcesJar
     archives javadocJar
-}*/
+}
