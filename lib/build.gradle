@@ -3,6 +3,9 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.github.dcendents.android-maven'
 
+group = 'com.logentries'
+version = '1.0'
+
 android {
 
     compileSdkVersion 28
@@ -32,7 +35,7 @@ android {
         ignoreWarnings true
         disable 'InvalidPackage'
     }
-
+    
     packagingOptions {
         exclude 'META-INF/core.kotlin_module'
         exclude 'META-INF/main.kotlin_module'
@@ -61,14 +64,6 @@ dependencies {
     
 }
 
-/*install {
-    repositories.mavenInstaller {
-        pom.groupId = 'com.logentries'
-        pom.version = '1.0.0'
-        pom.artifactId = project.name
-    }
-}*/
-
 install {
     repositories.mavenInstaller {
         pom.groupId = 'com.logentries'
@@ -96,7 +91,12 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
 }
 
+task classesJar(type: Jar) {
+    from "$buildDir/intermediates/classes/release"
+}
+
 artifacts {
+    archives classesJar
     archives sourcesJar
     archives javadocJar
 }
