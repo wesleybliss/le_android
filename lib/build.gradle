@@ -40,8 +40,6 @@ android {
 
 dependencies {
     
-    //api group: 'org.jbundle.util.osgi.wrapped', name: 'org.jbundle.util.osgi.wrapped.org.apache.http.client', version: '4.1.2'
-
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.0"
@@ -55,4 +53,33 @@ install {
         pom.version = '1.0.0'
         pom.artifactId = project.name
     }
+}
+
+// build a jar with source files
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+task javadoc(type: Javadoc) {
+    failOnError false
+    source = android.sourceSets.main.java.sourceFiles
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    classpath += configurations.compile
+}
+
+// build a jar with javadoc
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+task classesJar(type: Jar) {
+    from "$buildDir/intermediates/classes/release"
+}
+
+artifacts {
+    archives classesJar
+    archives sourcesJar
+    archives javadocJar
 }
