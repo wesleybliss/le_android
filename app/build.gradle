@@ -4,6 +4,7 @@ apply plugin: 'kotlin-android-extensions'
 
 def env = new Properties()
 env.load(project.rootProject.file('local.properties').newDataInputStream())
+def defaultLogentriesToken = 'SET_THIS_VALUE_IN__local.properties'
 
 android {
     
@@ -22,7 +23,7 @@ android {
     buildTypes {
         
         all {
-            buildConfigField "String", "LOGENTRIES_TOKEN", env.getProperty('LOGENTRIES_TOKEN')
+            buildConfigField "String", "LOGENTRIES_TOKEN", env.getProperty('LOGENTRIES_TOKEN', defaultLogentriesToken)
         }
         
         release {
