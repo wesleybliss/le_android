@@ -21,6 +21,11 @@ buildscript {
     
 }
 
+plugins {
+    // This plugin allows publishing android libraries
+    id "com.github.dcendents.android-maven" version "2.1"
+}
+
 allprojects {
     repositories {
         mavenLocal()
