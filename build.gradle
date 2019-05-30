@@ -21,8 +21,9 @@ buildscript {
     }
 }
 
+// This plugin allows publishing android libraries
+
 plugins {
-    // This plugin allows publishing android libraries
     id "com.github.dcendents.android-maven" version "2.1"
 }
 
