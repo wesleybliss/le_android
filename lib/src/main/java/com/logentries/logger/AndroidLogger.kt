@@ -1,14 +1,11 @@
 package com.logentries.logger
 
 import android.content.Context
-import android.content.SharedPreferences
-
-import java.io.IOException
-import java.util.UUID
-
 import android.content.Context.MODE_PRIVATE
 import com.logentries.storage.LEDataSource
 import com.logentries.storage.LEFileDataSource
+import java.io.IOException
+import java.util.*
 
 class AndroidLogger @Throws(IOException::class)
 private constructor(
